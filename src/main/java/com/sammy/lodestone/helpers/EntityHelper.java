@@ -1,6 +1,5 @@
 package com.sammy.lodestone.helpers;
 
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
