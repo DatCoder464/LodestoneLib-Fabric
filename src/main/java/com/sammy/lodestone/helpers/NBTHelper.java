@@ -1,24 +1,24 @@
 package com.sammy.lodestone.helpers;
 
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class NBTHelper {
 
-	public static NbtCompound filterTag(NbtCompound orig, TagFilter filter) {
+	public static CompoundTag filterTag(CompoundTag orig, TagFilter filter) {
 		if (filter.filters.isEmpty()) {
 			return orig;
 		}
-		NbtCompound copy = orig.copy();
+		CompoundTag copy = orig.copy();
 		removeTags(copy, filter);
 		return copy;
 	}
 
-	public static NbtCompound removeTags(NbtCompound tag, TagFilter filter) {
-		NbtCompound newTag = new NbtCompound();
+	public static CompoundTag removeTags(CompoundTag tag, TagFilter filter) {
+		CompoundTag newTag = new CompoundTag();
 		for (String i : filter.filters) {
 			if (tag.contains(i)) {
 				if (filter.isWhitelist) {
@@ -27,9 +27,9 @@ public class NBTHelper {
 					tag.remove(i);
 				}
 			} else {
-				for (String key : tag.getKeys()) {
-					NbtElement value = tag.get(key);
-					if (value instanceof NbtCompound ctag) {
+				for (String key : tag.getAllKeys()) {
+					Tag value = tag.get(key);
+					if (value instanceof CompoundTag ctag) {
 						removeTags(ctag, filter);
 					}
 				}

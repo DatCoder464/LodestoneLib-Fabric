@@ -1,17 +1,18 @@
 package com.sammy.lodestone.systems.rendering.particle.world;
 
 import com.mojang.brigadier.StringReader;
+import com.mojang.math.Vector3f;
 import com.mojang.serialization.Codec;
 import com.sammy.lodestone.systems.rendering.particle.SimpleParticleEffect;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.particle.ParticleType;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.Vec3;
 
-public class WorldParticleEffect extends SimpleParticleEffect implements ParticleEffect {
+public class WorldParticleEffect extends SimpleParticleEffect implements ParticleOptions {
 
     public ParticleType<?> type;
-    public Vec3f startingVelocity = Vec3f.ZERO, endingMotion = Vec3f.ZERO;
+    public Vec3 startingVelocity = Vec3.ZERO, endingMotion = Vec3.ZERO;
     public WorldParticleEffect(ParticleType<?> type) {
         this.type = type;
     }
@@ -26,21 +27,22 @@ public class WorldParticleEffect extends SimpleParticleEffect implements Particl
     }
 
     @Override
-    public void write(PacketByteBuf buf) {
+    public void writeToNetwork(FriendlyByteBuf buf) {
 
     }
 
-    public String asString() {
+    public String writeToString() {
         return "";
     }
-    public static final Factory<WorldParticleEffect> DESERIALIZER = new Factory<>() {
+
+    public static final ParticleOptions.Deserializer<WorldParticleEffect> DESERIALIZER = new ParticleOptions.Deserializer<>() {
         @Override
-        public WorldParticleEffect read(ParticleType<WorldParticleEffect> type, StringReader reader) {
+        public WorldParticleEffect fromCommand(ParticleType<WorldParticleEffect> type, StringReader reader) {
             return new WorldParticleEffect(type);
         }
 
         @Override
-        public WorldParticleEffect read(ParticleType<WorldParticleEffect> type, PacketByteBuf buf) {
+        public WorldParticleEffect fromNetwork(ParticleType<WorldParticleEffect> type, FriendlyByteBuf buf) {
             return new WorldParticleEffect(type);
         }
     };

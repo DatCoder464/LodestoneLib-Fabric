@@ -1,9 +1,9 @@
 package com.sammy.lodestone.systems.postprocess;
 
-import com.mojang.blaze3d.shader.GlslImportProcessor;
+import com.mojang.blaze3d.preprocessor.GlslPreprocessor;
 import com.sammy.lodestone.LodestoneLib;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,17 +11,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-public class LodestoneGlslPreprocessor extends GlslImportProcessor {
+public class LodestoneGlslPreprocessor extends GlslPreprocessor {
 	@Nullable
 	@Override
-	public String loadImport(boolean inline, String name) {
+	public String applyImport(boolean inline, String name) {
 		LodestoneLib.LOGGER.debug("Loading moj_import in EffectProgram: " + name);
 
-		Identifier id= new Identifier(name);
-		Identifier id1 = new Identifier(id.getNamespace(), "shaders/include/" + id.getPath() + ".glsl");
+		ResourceLocation id= new ResourceLocation(name);
+		ResourceLocation id1 = new ResourceLocation(id.getNamespace(), "shaders/include/" + id.getPath() + ".glsl");
 
 		try {
-			InputStream resource1 = MinecraftClient.getInstance().getResourceManager().getResourceOrThrow(id1).open();
+			InputStream resource1 = Minecraft.getInstance().getResourceManager().getResource(id1).getInputStream();
 
 			String s2;
 			try {

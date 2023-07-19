@@ -3,8 +3,10 @@ package com.sammy.lodestone.handlers;
 
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.Tessellator;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.math.Matrix4f;
 import com.sammy.lodestone.LodestoneLib;
 import com.sammy.lodestone.systems.rendering.particle.screen.GenericScreenParticle;
 import com.sammy.lodestone.systems.rendering.particle.screen.ScreenParticleEffect;
@@ -14,26 +16,24 @@ import com.sammy.lodestone.systems.rendering.particle.screen.emitter.ItemParticl
 import com.sammy.lodestone.systems.rendering.particle.screen.emitter.ParticleEmitter;
 //import dev.emi.emi.screen.RecipeScreen;
 import dev.emi.emi.screen.RecipeScreen;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraft.client.gui.screen.GameModeSelectionScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.particle.ParticleTextureSheet;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Matrix4f;
-import org.quiltmc.loader.api.QuiltLoader;
+import net.fabricmc.loader.impl.FabricLoaderImpl;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.debug.GameModeSwitcherScreen;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
 
 import static com.sammy.lodestone.systems.rendering.particle.screen.base.ScreenParticle.RenderOrder.*;
 
 public class ScreenParticleHandler {
-	public static Map<Pair<ParticleTextureSheet, ScreenParticle.RenderOrder>, ArrayList<ScreenParticle>> PARTICLES = new HashMap<>();
+	public static Map<Pair<ParticleRenderType, ScreenParticle.RenderOrder>, ArrayList<ScreenParticle>> PARTICLES = new HashMap<>();
 	public static ArrayList<StackTracker> RENDERED_STACKS = new ArrayList<>();
 	public static Map<Item, ParticleEmitter> EMITTERS = new HashMap<>();
-	public static final Tessellator TESSELATOR = new Tessellator();
+	public static final Tesselator TESSELATOR = new Tesselator();
 	public static boolean canSpawnParticles;
 	public static boolean renderingHotbar;
 
@@ -52,28 +52,28 @@ public class ScreenParticleHandler {
 	}
 
 	public static void renderItem(ItemStack stack) {
-		MinecraftClient minecraft = MinecraftClient.getInstance();
-		if (minecraft.world != null && minecraft.player != null) {
+		Minecraft minecraft = Minecraft.getInstance();
+		if (minecraft.level != null && minecraft.player != null) {
 			if (minecraft.isPaused()) {
 				return;
 			}
 			if (!stack.isEmpty()) {
 				ParticleEmitter emitter = ScreenParticleHandler.EMITTERS.get(stack.getItem());
 				if (emitter != null) {
-					MatrixStack matrixStack = RenderSystem.getModelViewStack();
+					PoseStack matrixStack = RenderSystem.getModelViewStack();
 					ScreenParticle.RenderOrder renderOrder = AFTER_EVERYTHING;
-					Screen screen = minecraft.currentScreen;
+					Screen screen = minecraft.screen;
 					if (screen != null) {
-						if (!QuiltLoader.isModLoaded("emi") || !(screen instanceof RecipeScreen)) {
+						if (!FabricLoaderImpl.INSTANCE.isModLoaded("emi") || !(screen instanceof RecipeScreen)) {
 							renderOrder = BEFORE_TOOLTIPS;
 						}
 						if (renderingHotbar) {
 							renderOrder = BEFORE_UI;
 						}
 					}
-					Matrix4f last = matrixStack.peek().getModel();
-					float x = last.a03;
-					float y = last.a13;
+					Matrix4f last = matrixStack.last().pose();
+					float x = last.m03;
+					float y = last.m13;
 					if (canSpawnParticles) {
 						emitter.tick(stack, x, y, renderOrder);
 					}
@@ -84,12 +84,12 @@ public class ScreenParticleHandler {
 	}
 
 	public static void renderParticles() {
-		final MinecraftClient client = MinecraftClient.getInstance();
-		Screen screen = client.currentScreen;
-		if (QuiltLoader.isModLoaded("emi") && screen instanceof RecipeScreen) {
+		final Minecraft client = Minecraft.getInstance();
+		Screen screen = client.screen;
+		if (FabricLoaderImpl.INSTANCE.isModLoaded("emi") && screen instanceof RecipeScreen) {
 			renderParticles(AFTER_EVERYTHING);
 		}
-		if (screen == null || screen instanceof ChatScreen || screen instanceof GameModeSelectionScreen) {
+		if (screen == null || screen instanceof ChatScreen || screen instanceof GameModeSwitcherScreen) {
 			renderParticles(AFTER_EVERYTHING, BEFORE_UI);
 		}
 		RENDERED_STACKS.clear();
@@ -98,23 +98,23 @@ public class ScreenParticleHandler {
 
 	@SuppressWarnings("WhileLoopReplaceableByForEach")
 	public static void renderParticles(ScreenParticle.RenderOrder... renderOrders) {
-		final MinecraftClient client = MinecraftClient.getInstance();
+		final Minecraft client = Minecraft.getInstance();
 		try {
-			Iterator<Map.Entry<Pair<ParticleTextureSheet, ScreenParticle.RenderOrder>, ArrayList<ScreenParticle>>> itater = PARTICLES.entrySet().iterator();
+			Iterator<Map.Entry<Pair<ParticleRenderType, ScreenParticle.RenderOrder>, ArrayList<ScreenParticle>>> itater = PARTICLES.entrySet().iterator();
 			while (itater.hasNext()) {
-				Map.Entry<Pair<ParticleTextureSheet, ScreenParticle.RenderOrder>, ArrayList<ScreenParticle>> next = itater.next();
-				ParticleTextureSheet type = next.getKey().getFirst();
+				Map.Entry<Pair<ParticleRenderType, ScreenParticle.RenderOrder>, ArrayList<ScreenParticle>> next = itater.next();
+				ParticleRenderType type = next.getKey().getFirst();
 				if (Arrays.stream(renderOrders).anyMatch(o -> o.equals(next.getKey().getSecond()))) {
-					type.begin(TESSELATOR.getBufferBuilder(), client.getTextureManager());
+					type.begin(TESSELATOR.getBuilder(), client.getTextureManager());
 					Iterator<ScreenParticle> itetater = next.getValue().iterator();
 					while (itetater.hasNext()) {
 						ScreenParticle nex = itetater.next();
 						if (nex instanceof GenericScreenParticle genericScreenParticle) {
 							genericScreenParticle.trackStack();
 						}
-						nex.render(TESSELATOR.getBufferBuilder());
+						nex.render(TESSELATOR.getBuilder());
 					}
-					type.draw(TESSELATOR);
+					type.end(TESSELATOR);
 				}
 			}
 		} catch (Exception e) {
@@ -124,10 +124,10 @@ public class ScreenParticleHandler {
 
 	@SuppressWarnings("ALL")
 	public static <T extends ScreenParticleEffect> ScreenParticle addParticle(T options, double pX, double pY, double pXSpeed, double pYSpeed) {
-		MinecraftClient minecraft = MinecraftClient.getInstance();
+		Minecraft minecraft = Minecraft.getInstance();
 		ScreenParticleType<T> type = (ScreenParticleType<T>) options.type;
 		ScreenParticleType.Factory<T> provider = type.factory;
-		ScreenParticle particle = provider.createParticle(minecraft.world, options, pX, pY, pXSpeed, pYSpeed);
+		ScreenParticle particle = provider.createParticle(minecraft.level, options, pX, pY, pXSpeed, pYSpeed);
 		ArrayList<ScreenParticle> list = PARTICLES.computeIfAbsent(Pair.of(particle.getTextureSheet(), particle.renderOrder), (a) -> new ArrayList<>());
 		list.add(particle);
 		return particle;
@@ -154,8 +154,8 @@ public class ScreenParticleHandler {
 		}
 	}
 
-	public static void registerItemParticleEmitter(net.minecraft.util.Pair<ItemParticleEmitter, Item[]> pair) {
-		registerItemParticleEmitter(pair.getLeft()::particleTick, pair.getRight());
+	public static void registerItemParticleEmitter(net.minecraft.util.Tuple<ItemParticleEmitter, Item[]> pair) {
+		registerItemParticleEmitter(pair.getA()::particleTick, pair.getB());
 	}
 
 	public record StackTracker(ItemStack stack, ScreenParticle.RenderOrder order, float xOrigin, float yOrigin) {

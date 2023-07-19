@@ -3,9 +3,9 @@ package com.sammy.lodestone.setup;
 import com.sammy.lodestone.helpers.DataHelper;
 import com.sammy.lodestone.systems.rendering.particle.type.LodestoneParticleType;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
-import net.minecraft.particle.ParticleType;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.BiConsumer;
 
@@ -28,7 +28,7 @@ public class LodestoneParticles {
 		ParticleFactoryRegistry.getInstance().register(STAR_PARTICLE, LodestoneParticleType.Factory::new);
 	}
 	// shamelessly stolen from Botania
-	private static void initParticles(BiConsumer<ParticleType<?>, Identifier> registry) {
+	private static void initParticles(BiConsumer<ParticleType<?>, ResourceLocation> registry) {
 		registry.accept(WISP_PARTICLE, DataHelper.prefix("wisp"));
 		registry.accept(SMOKE_PARTICLE, DataHelper.prefix("smoke"));
 		registry.accept(SPARKLE_PARTICLE, DataHelper.prefix("sparkle"));
@@ -36,7 +36,7 @@ public class LodestoneParticles {
 		registry.accept(STAR_PARTICLE, DataHelper.prefix("star"));
 	}
 	// guess where this one comes from
-	private static <T> BiConsumer<T, Identifier> bind(Registry<? super T> registry) {
+	private static <T> BiConsumer<T, ResourceLocation> bind(Registry<? super T> registry) {
 		return (t, id) -> Registry.register(registry, id, t);
 	}
 }

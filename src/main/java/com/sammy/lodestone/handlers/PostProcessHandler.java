@@ -1,14 +1,14 @@
 package com.sammy.lodestone.handlers;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.sammy.lodestone.systems.postprocess.PostProcessor;
-import net.minecraft.client.util.math.MatrixStack;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Handles world-space post-processing.
- * Based on vanilla {@link net.minecraft.client.gl.ShaderEffect} system, but allows the shader to access the world depth buffer.
+ * Based on vanilla system, but allows the shader to access the world depth buffer.
  */
 public class PostProcessHandler {
 	private static final List<PostProcessor> instances = new ArrayList<>();
@@ -34,7 +34,7 @@ public class PostProcessHandler {
 		instances.forEach(i -> i.resize(width, height));
 	}
 
-	public static void renderLast(MatrixStack matrices) {
+	public static void renderLast(PoseStack matrices) {
 		copyDepthBuffer(); // copy the depth buffer if the mixin didn't trigger
 
 		PostProcessor.viewModelStack = matrices;

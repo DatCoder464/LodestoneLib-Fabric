@@ -1,40 +1,43 @@
 package com.sammy.lodestone.helpers;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.*;
-import net.minecraft.util.random.RandomGenerator;
-import net.minecraft.world.World;
+import com.mojang.math.Vector3f;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 
 import static com.sammy.lodestone.LodestoneLib.MODID;
-import static net.minecraft.util.math.MathHelper.sqrt;
 
 public final class DataHelper {
-	public static Vec3d fromBlockPos(BlockPos pos) {
-		return new Vec3d(pos.getX(), pos.getY(), pos.getZ());
+	public static Vec3 fromBlockPos(BlockPos pos) {
+		return new Vec3(pos.getX(), pos.getY(), pos.getZ());
 	}
 
-	public static Vec3f fromBlockPosVec3f(BlockPos pos) {
-		return new Vec3f(pos.getX(), pos.getY(), pos.getZ());
+	public static Vector3f fromBlockPosVec3f(BlockPos pos) {
+		return new Vector3f(pos.getX(), pos.getY(), pos.getZ());
 	}
 
-	public static Vec3d randPos(BlockPos pos, RandomGenerator rand, double min, double max) {
-		double x = MathHelper.nextDouble(rand, min, max) + pos.getX();
-		double y = MathHelper.nextDouble(rand, min, max) + pos.getY();
-		double z = MathHelper.nextDouble(rand, min, max) + pos.getZ();
-		return new Vec3d(x, y, z);
+	public static Vec3 randPos(BlockPos pos, Random rand, double min, double max) {
+		double x = Mth.nextDouble(rand, min, max) + pos.getX();
+		double y = Mth.nextDouble(rand, min, max) + pos.getY();
+		double z = Mth.nextDouble(rand, min, max) + pos.getZ();
+		return new Vec3(x, y, z);
 	}
 
-	public static Identifier prefix(String path) {
-		return new Identifier(MODID, path);
+	public static ResourceLocation prefix(String path) {
+		return new ResourceLocation(MODID, path);
 	}
 
 	public static <T, K extends Collection<T>> K reverseOrder(Supplier<K> reversed, Collection<T> items) {
@@ -55,29 +58,29 @@ public final class DataHelper {
 		return stringBuilder.toString().trim().replaceAll(regex, " ").substring(0, stringBuilder.length() - 1);
 	}
 
-	public static void writeNbt(NbtCompound nbt, DefaultedList<ItemStack> stacks, String key) {
-		NbtList nbtList = new NbtList();
+	public static void writeNbt(CompoundTag nbt, NonNullList<ItemStack> stacks, String key) {
+		ListTag nbtList = new ListTag();
 
 		for(int i = 0; i < stacks.size(); ++i) {
 			ItemStack itemStack = stacks.get(i);
 			if (!itemStack.isEmpty()) {
-				NbtCompound nbtCompound = new NbtCompound();
+				CompoundTag nbtCompound = new CompoundTag();
 				nbtCompound.putByte("Slot", (byte)i);
-				itemStack.writeNbt(nbtCompound);
+				itemStack.setTag(nbtCompound);
 				nbtList.add(nbtCompound);
 			}
 		}
 		nbt.put(key, nbtList);
 	}
 
-	public static void readNbt(NbtCompound nbt, DefaultedList<ItemStack> stacks, String key) {
-		NbtList nbtList = nbt.getList(key, 10);
+	public static void readNbt(CompoundTag nbt, NonNullList<ItemStack> stacks, String key) {
+		ListTag nbtList = nbt.getList(key, 10);
 
 		for(int i = 0; i < nbtList.size(); ++i) {
-			NbtCompound nbtCompound = nbtList.getCompound(i);
+			CompoundTag nbtCompound = nbtList.getCompound(i);
 			int j = nbtCompound.getByte("Slot") & 255;
 			if (j < stacks.size()) {
-				stacks.set(j, ItemStack.fromNbt(nbtCompound));
+				stacks.set(j, ItemStack.of(nbtCompound));
 			}
 		}
 
@@ -144,45 +147,45 @@ public final class DataHelper {
 		return src.stream().filter(pred).collect(Collectors.toList());
 	}
 
-	public static Vec3d circlePosition(Vec3d pos, float distance, float current, float total) {
+	public static Vec3 circlePosition(Vec3 pos, float distance, float current, float total) {
 		double angle = current / total * (Math.PI * 2);
 		double dx2 = (distance * Math.cos(angle));
 		double dz2 = (distance * Math.sin(angle));
 
-		Vec3d vector = new Vec3d(dx2, 0, dz2);
+		Vec3 vector = new Vec3(dx2, 0, dz2);
 		double x = vector.x * distance;
 		double z = vector.z * distance;
-		return pos.add(new Vec3d(x, 0, z));
+		return pos.add(new Vec3(x, 0, z));
 	}
 
-	public static Vec3d rotatedCirclePosition(Vec3d pos, float distance, float current, float total, long gameTime, float time, float tickDelta) {
+	public static Vec3 rotatedCirclePosition(Vec3 pos, float distance, float current, float total, long gameTime, float time, float tickDelta) {
 		return rotatedCirclePosition(pos, distance, distance, current, total, gameTime, time, tickDelta);
 	}
 
-	public static Vec3d rotatedCirclePosition(Vec3d pos, float distanceX, float distanceZ, float current, float total, long gameTime, float time, float tickDelta) {
+	public static Vec3 rotatedCirclePosition(Vec3 pos, float distanceX, float distanceZ, float current, float total, long gameTime, float time, float tickDelta) {
 		double angle = current / total * (Math.PI * 2);
 		angle += (((gameTime % time) + tickDelta) / time) * (Math.PI * 2);
 		double dx2 = (distanceX * Math.cos(angle));
 		double dz2 = (distanceZ * Math.sin(angle));
 
-		Vec3d vector2f = new Vec3d(dx2, 0, dz2);
+		Vec3 vector2f = new Vec3(dx2, 0, dz2);
 		double x = vector2f.x * distanceX;
 		double z = vector2f.z * distanceZ;
 		return pos.add(x, 0, z);
 	}
 
-	public static ArrayList<Vec3d> blockOutlinePositions(World world, BlockPos pos) {
-		ArrayList<Vec3d> arrayList = new ArrayList<>();
+	public static ArrayList<Vec3> blockOutlinePositions(Level world, BlockPos pos) {
+		ArrayList<Vec3> arrayList = new ArrayList<>();
 		double d0 = 0.5625D;
 		RandomGenerator random = world.random;
 		for (Direction direction : Direction.values()) {
-			BlockPos blockpos = pos.offset(direction);
-			if (!world.getBlockState(blockpos).isOpaqueFullCube(world, blockpos)) {
+			BlockPos blockpos = pos.offset(direction.getNormal());
+			if (!world.getBlockState(blockpos).isSolidRender(world, blockpos)) {
 				Direction.Axis direction$axis = direction.getAxis();
-				double d1 = direction$axis == Direction.Axis.X ? 0.5D + d0 * (double) direction.getOffsetX() : (double) random.nextFloat();
-				double d2 = direction$axis == Direction.Axis.Y ? 0.5D + d0 * (double) direction.getOffsetY() : (double) random.nextFloat();
-				double d3 = direction$axis == Direction.Axis.Z ? 0.5D + d0 * (double) direction.getOffsetZ() : (double) random.nextFloat();
-				arrayList.add(new Vec3d((double) pos.getX() + d1, (double) pos.getY() + d2, (double) pos.getZ() + d3));
+				double d1 = direction$axis == Direction.Axis.X ? 0.5D + d0 * (double) direction.getStepX() : (double) random.nextFloat();
+				double d2 = direction$axis == Direction.Axis.Y ? 0.5D + d0 * (double) direction.getStepY() : (double) random.nextFloat();
+				double d3 = direction$axis == Direction.Axis.Z ? 0.5D + d0 * (double) direction.getStepZ() : (double) random.nextFloat();
+				arrayList.add(new Vec3((double) pos.getX() + d1, (double) pos.getY() + d2, (double) pos.getZ() + d3));
 			}
 		}
 		return arrayList;
@@ -196,6 +199,6 @@ public final class DataHelper {
 	}
 
 	public static float distance(float... a) {
-		return sqrt(distSqr(a));
+		return Mth.sqrt(distSqr(a));
 	}
 }

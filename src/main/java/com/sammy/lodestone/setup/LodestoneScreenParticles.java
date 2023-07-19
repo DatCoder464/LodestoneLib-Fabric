@@ -5,9 +5,9 @@ import com.sammy.lodestone.mixin.FabricSpriteProviderImplAccessor;
 import com.sammy.lodestone.systems.rendering.particle.screen.ScreenParticleEffect;
 import com.sammy.lodestone.systems.rendering.particle.screen.ScreenParticleType;
 import com.sammy.lodestone.systems.rendering.particle.type.LodestoneScreenParticleType;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.particle.SpriteProvider;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 
@@ -36,9 +36,9 @@ public class LodestoneScreenParticles {
 		type.factory = provider;
 	}
 
-	public static SpriteProvider getSpriteSet(Identifier resourceLocation) {
-		final MinecraftClient client = MinecraftClient.getInstance();
-		return FabricSpriteProviderImplAccessor.FabricSpriteProviderImpl(client.particleManager, client.particleManager.spriteAwareFactories.get(resourceLocation));
+	public static SpriteSet getSpriteSet(ResourceLocation resourceLocation) {
+		final Minecraft client = Minecraft.getInstance();
+		return FabricSpriteProviderImplAccessor.FabricSpriteProviderImpl(client.particleEngine, client.particleEngine.spriteSets.get(resourceLocation));
 	}
 
 }

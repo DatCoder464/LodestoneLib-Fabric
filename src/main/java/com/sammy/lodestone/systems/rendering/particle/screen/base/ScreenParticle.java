@@ -1,9 +1,10 @@
 package com.sammy.lodestone.systems.rendering.particle.screen.base;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import net.minecraft.client.particle.ParticleTextureSheet;
-import net.minecraft.util.random.RandomGenerator;
-import net.minecraft.world.World;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.world.level.Level;
+
+import java.util.random.RandomGenerator;
 
 public abstract class ScreenParticle {
 
@@ -11,7 +12,7 @@ public abstract class ScreenParticle {
         BEFORE_UI, BEFORE_TOOLTIPS, AFTER_EVERYTHING
     }
 
-    public final World clientWorld; // this can't be a ClientWorld cause of server environment stuff
+    public final Level clientWorld; // this can't be a ClientWorld cause of server environment stuff
     public double prevX;
     public double prevY;
     public double x;
@@ -21,7 +22,7 @@ public abstract class ScreenParticle {
     public double totalX;
     public double totalY;
     public boolean removed;
-    public final RandomGenerator random = RandomGenerator.createLegacy();
+    public final RandomGenerator random = RandomGenerator.getDefault();
     public int age;
     public int maxAge;
     public float gravityStrength;
@@ -35,7 +36,7 @@ public abstract class ScreenParticle {
     public float velocityMultiplier = 0.98F;
     public RenderOrder renderOrder = RenderOrder.AFTER_EVERYTHING;
 
-    protected ScreenParticle(World clientWorld, double pX, double pY) {
+    protected ScreenParticle(Level clientWorld, double pX, double pY) {
         this.clientWorld = clientWorld;
         this.setScale(0.2F);
         this.x = pX;
@@ -45,7 +46,7 @@ public abstract class ScreenParticle {
         this.maxAge = (int) (4.0F / (this.random.nextFloat() * 0.9F + 0.1F));
     }
 
-    public ScreenParticle(World clientWorld, double pX, double pY, double pXSpeed, double pYSpeed) {
+    public ScreenParticle(Level clientWorld, double pX, double pY, double pXSpeed, double pYSpeed) {
         this(clientWorld, pX, pY);
         this.velocityX = pXSpeed + (Math.random() * 2.0D - 1.0D) * (double) 0.4F;
         this.velocityY = pYSpeed + (Math.random() * 2.0D - 1.0D) * (double) 0.4F;
@@ -109,7 +110,7 @@ public abstract class ScreenParticle {
 
     public abstract void render(BufferBuilder bufferBuilder);
 
-    public abstract ParticleTextureSheet getTextureSheet();
+    public abstract ParticleRenderType getTextureSheet();
 
     public void remove() {
         this.removed = true;

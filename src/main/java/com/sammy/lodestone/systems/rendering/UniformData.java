@@ -1,6 +1,7 @@
 package com.sammy.lodestone.systems.rendering;
 
-import com.mojang.blaze3d.shader.Uniform;
+import com.mojang.blaze3d.shaders.AbstractUniform;
+import com.mojang.blaze3d.shaders.Uniform;
 
 public class UniformData {
 	public final String uniformName;
@@ -11,7 +12,7 @@ public class UniformData {
 		this.uniformType = uniformType;
 	}
 
-	public void setUniformValue(Uniform uniform) {
+	public void setUniformValue(AbstractUniform uniform) {
 
 	}
 
@@ -24,11 +25,11 @@ public class UniformData {
 		}
 
 		@Override
-		public void setUniformValue(Uniform uniform) {
+		public void setUniformValue(AbstractUniform uniform) {
 			if (uniformType <= 7) {
-				uniform.setForDataType(array[0], array[1], array[2], array[3]);
+				uniform.setSafe(array[0], array[1], array[2], array[3]);
 			} else {
-				uniform.setFloats(array);
+				uniform.set(array);
 			}
 		}
 	}
@@ -42,8 +43,8 @@ public class UniformData {
 		}
 
 		@Override
-		public void setUniformValue(Uniform uniform) {
-			uniform.setForDataType(array[0], array[1], array[2], array[3]);
+		public void setUniformValue(AbstractUniform uniform) {
+			uniform.setSafe(array[0], array[1], array[2], array[3]);
 		}
 	}
 }

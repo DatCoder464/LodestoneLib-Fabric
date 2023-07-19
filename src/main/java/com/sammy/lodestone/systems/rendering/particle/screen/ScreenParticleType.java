@@ -1,7 +1,7 @@
 package com.sammy.lodestone.systems.rendering.particle.screen;
 
 import com.sammy.lodestone.systems.rendering.particle.screen.base.ScreenParticle;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 public class ScreenParticleType<T extends ScreenParticleEffect> {
 
@@ -10,6 +10,6 @@ public class ScreenParticleType<T extends ScreenParticleEffect> {
     }
 
     public interface Factory<T extends ScreenParticleEffect> {
-        ScreenParticle createParticle(World clientWorld, T options, double pX, double pY, double pXSpeed, double pYSpeed);
+        ScreenParticle createParticle(Level clientWorld, T options, double pX, double pY, double pXSpeed, double pYSpeed);
     }
 }

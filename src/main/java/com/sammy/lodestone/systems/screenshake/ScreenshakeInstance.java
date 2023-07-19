@@ -1,10 +1,10 @@
 package com.sammy.lodestone.systems.screenshake;
 
 import com.sammy.lodestone.systems.rendering.particle.Easing;
-import net.minecraft.client.render.Camera;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.client.Camera;
+import net.minecraft.util.Mth;
 
+import java.util.random.RandomGenerator;
 
 public class ScreenshakeInstance {
 	public int progress;
@@ -46,12 +46,12 @@ public class ScreenshakeInstance {
 		float percentage = progress / (float) duration;
 		if (intensity2 != intensity3) {
 			if (percentage >= 0.5f) {
-				return MathHelper.lerp(intensityCurveEndEasing.ease(percentage - 0.5f, 0, 1, 0.5f), intensity2, intensity1);
+				return Mth.lerp(intensityCurveEndEasing.ease(percentage - 0.5f, 0, 1, 0.5f), intensity2, intensity1);
 			} else {
-				return MathHelper.lerp(intensityCurveStartEasing.ease(percentage, 0, 1, 0.5f), intensity1, intensity2);
+				return Mth.lerp(intensityCurveStartEasing.ease(percentage, 0, 1, 0.5f), intensity1, intensity2);
 			}
 		} else {
-			return MathHelper.lerp(intensityCurveStartEasing.ease(percentage, 0, 1, 1), intensity1, intensity2);
+			return Mth.lerp(intensityCurveStartEasing.ease(percentage, 0, 1, 1), intensity1, intensity2);
 		}
 	}
 }

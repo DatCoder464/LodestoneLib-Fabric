@@ -1,6 +1,7 @@
 package com.sammy.lodestone.helpers;
 
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 
@@ -12,7 +13,7 @@ public class EntityHelper {
 	 * @param currentPosition   The current position to be added to the list.
 	 * @param distanceThreshold the minimum distance from the latest PastPos before a new position is added.
 	 */
-	public static void trackPastPositions(ArrayList<PastPosition> pastPositions, Vec3d currentPosition, float distanceThreshold) {
+	public static void trackPastPositions(ArrayList<PastPosition> pastPositions, Vec3 currentPosition, float distanceThreshold) {
 		for (PastPosition pastPosition : pastPositions) {
 			pastPosition.time++;
 		}
@@ -28,10 +29,10 @@ public class EntityHelper {
 	}
 
 	public static class PastPosition {
-		public Vec3d position;
+		public Vec3 position;
 		public int time;
 
-		public PastPosition(Vec3d position, int time) {
+		public PastPosition(Vec3 position, int time) {
 			this.position = position;
 			this.time = time;
 		}

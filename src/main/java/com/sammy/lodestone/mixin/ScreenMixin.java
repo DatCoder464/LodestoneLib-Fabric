@@ -1,8 +1,8 @@
 package com.sammy.lodestone.mixin;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.sammy.lodestone.handlers.ScreenParticleHandler;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.gui.screens.Screen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -12,8 +12,8 @@ import static com.sammy.lodestone.systems.rendering.particle.screen.base.ScreenP
 
 @Mixin(Screen.class)
 final class ScreenMixin {
-	@Inject(at = @At("HEAD"), method = "renderBackground(Lnet/minecraft/client/util/math/MatrixStack;I)V")
-	private void lodestone$beforeBackgroundParticle(MatrixStack pPoseStack, int pVOffset, CallbackInfo ci) {
+	@Inject(at = @At("HEAD"), method = "renderBackground(Lcom/mojang/blaze3d/vertex/PoseStack;)V")
+	private void lodestone$beforeBackgroundParticle(PoseStack poseStack, CallbackInfo ci) {
 		ScreenParticleHandler.renderParticles(BEFORE_UI);
 	}
 }

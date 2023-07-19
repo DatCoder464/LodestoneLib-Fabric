@@ -2,15 +2,18 @@ package com.sammy.lodestone.handlers;
 
 import com.sammy.lodestone.config.ClientConfig;
 import com.sammy.lodestone.systems.screenshake.ScreenshakeInstance;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.noise.PerlinNoiseSampler;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
+import net.minecraft.world.level.levelgen.RandomSource;
+import net.minecraft.world.level.levelgen.synth.ImprovedNoise;
 
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.random.RandomGenerator;
+
 public class ScreenshakeHandler {
-	private static final PerlinNoiseSampler sampler = new PerlinNoiseSampler(RandomGenerator.createLegacy());
+	private static final ImprovedNoise sampler = new ImprovedNoise(new LegacyRandomSource(new Random().nextLong()));
 	public static final ArrayList<ScreenshakeInstance> INSTANCES = new ArrayList<>();
 	public static float intensity;
 	public static float yawOffset;
@@ -20,7 +23,7 @@ public class ScreenshakeHandler {
 		if (intensity >= 0.1) {
 			yawOffset = randomizeOffset(10);
 			pitchOffset = randomizeOffset(-10);
-			camera.setRotation(camera.getYaw() + yawOffset, camera.getPitch() + pitchOffset);
+			camera.setRotation(camera.getYRot() + yawOffset, camera.getXRot() + pitchOffset);
 		}
 	}
 
@@ -38,7 +41,7 @@ public class ScreenshakeHandler {
 	public static float randomizeOffset(int offset) {
 		float min = -intensity * 2;
 		float max = intensity * 2;
-		float sampled = (float) sampler.sample((MinecraftClient.getInstance().world.getTime() % 24000L + MinecraftClient.getInstance().getTickDelta())/intensity, offset, 0) * 1.5f;
+		float sampled = (float) sampler.noise((Minecraft.getInstance().level.getDayTime() % 24000L + Minecraft.getInstance().getFrameTime())/intensity, offset, 0) * 1.5f;
 		return min >= max ? min : sampled * max;
 	}
 }

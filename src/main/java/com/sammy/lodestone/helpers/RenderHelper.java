@@ -2,19 +2,23 @@ package com.sammy.lodestone.helpers;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.*;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.*;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
+import com.mojang.math.Vector4f;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec2;
 
 import java.util.Optional;
 import java.util.function.Supplier;
 
 public final class RenderHelper {
 	public static final int FULL_BRIGHT = 15728880;
-	public static ShaderProgram getShader(RenderLayer type) {
-		if (type instanceof RenderLayer.MultiPhase compositeRenderType) {
-			Optional<Supplier<ShaderProgram>> shader = compositeRenderType.phases.shader.supplier;
+	public static ShaderInstance getShader(RenderType type) {
+		if (type instanceof RenderType.CompositeRenderType compositeRenderType) {
+			Optional<Supplier<ShaderInstance>> shader = compositeRenderType.state.shaderState.shader;
 			if (shader.isPresent()) {
 				return shader.get().get();
 			}
@@ -23,45 +27,45 @@ public final class RenderHelper {
 	}
 
 	public static void vertexPos(VertexConsumer vertexConsumer, Matrix4f last, float x, float y, float z) {
-		vertexConsumer.vertex(last, x, y, z).next();
+		vertexConsumer.vertex(last, x, y, z).endVertex();
 	}
 
 	public static void vertexPosUV(VertexConsumer vertexConsumer, Matrix4f last, float x, float y, float z, float u, float v) {
-		vertexConsumer.vertex(last, x, y, z).uv(u, v).next();
+		vertexConsumer.vertex(last, x, y, z).uv(u, v).endVertex();
 	}
 
 	public static void vertexPosUVLight(VertexConsumer vertexConsumer, Matrix4f last, float x, float y, float z, float u, float v, int light) {
-		vertexConsumer.vertex(last, x, y, z).uv(u, v).light(light).next();
+		vertexConsumer.vertex(last, x, y, z).uv(u, v).uv2(light).endVertex();
 	}
 
 	public static void vertexPosColor(VertexConsumer vertexConsumer, Matrix4f last, float x, float y, float z, float r, float g, float b, float a) {
-		vertexConsumer.vertex(last, x, y, z).color(r, g, b, a).next();
+		vertexConsumer.vertex(last, x, y, z).color(r, g, b, a).endVertex();
 	}
 
 	public static void vertexPosColorUV(VertexConsumer vertexConsumer, Matrix4f last, float x, float y, float z, float r, float g, float b, float a, float u, float v) {
-		vertexConsumer.vertex(last, x, y, z).color(r, g, b, a).uv(u, v).next();
+		vertexConsumer.vertex(last, x, y, z).color(r, g, b, a).uv(u, v).endVertex();
 	}
 
 	public static void vertexPosColorUVLight(VertexConsumer vertexConsumer, Matrix4f last, float x, float y, float z, float r, float g, float b, float a, float u, float v, int light) {
-		vertexConsumer.vertex(last, x, y, z).color(r, g, b, a).uv(u, v).light(light).next();
+		vertexConsumer.vertex(last, x, y, z).color(r, g, b, a).uv(u, v).uv2(light).endVertex();
 	}
 
-	public static Vec3f parametricSphere(float u, float v, float r) {
-		return new Vec3f(MathHelper.cos(u) * MathHelper.sin(v) * r, MathHelper.cos(v) * r, MathHelper.sin(u) * MathHelper.sin(v) * r);
+	public static Vector3f parametricSphere(float u, float v, float r) {
+		return new Vector3f(Mth.cos(u) * Mth.sin(v) * r, Mth.cos(v) * r, Mth.sin(u) * Mth.sin(v) * r);
 	}
 
-	public static Vec2f screenSpaceQuadOffsets(Vector4f start, Vector4f end, float width) {
-		float x = -start.getX();
-		float y = -start.getY();
-		if (Math.abs(start.getZ()) > 0) {
-			float ratio = end.getZ() / start.getZ();
-			x = end.getX() + x * ratio;
-			y = end.getY() + y * ratio;
-		} else if (Math.abs(end.getZ()) <= 0) {
-			x += end.getX();
-			y += end.getY();
+	public static Vec2 screenSpaceQuadOffsets(Vector4f start, Vector4f end, float width) {
+		float x = -start.x();
+		float y = -start.y();
+		if (Math.abs(start.z()) > 0) {
+			float ratio = end.z() / start.z();
+			x = end.x() + x * ratio;
+			y = end.y() + y * ratio;
+		} else if (Math.abs(end.z()) <= 0) {
+			x += end.x();
+			y += end.y();
 		}
-		if (start.getZ() > 0) {
+		if (start.z() > 0) {
 			x = -x;
 			y = -y;
 		}
@@ -70,25 +74,25 @@ public final class RenderHelper {
 			x *= normalize;
 			y *= normalize;
 		}
-		return new Vec2f(-y, x);
+		return new Vec2(-y, x);
 	}
 
 	public static Vector4f midpoint(Vector4f a, Vector4f b) {
-		return new Vector4f((a.getX() + b.getX()) * 0.5F, (a.getY() + b.getY()) * 0.5F, (a.getZ() + b.getZ()) * 0.5F, (a.getW() + b.getW()) * 0.5F);
+		return new Vector4f((a.x() + b.x()) * 0.5F, (a.y() + b.y()) * 0.5F, (a.z() + b.z()) * 0.5F, (a.w() + b.w()) * 0.5F);
 	}
 
-	public static Vec2f worldPosToTexCoord(Vec3f worldPos, MatrixStack viewModelStack) {
-		Matrix4f viewMat = viewModelStack.peek().getModel();
+	public static Vec2 worldPosToTexCoord(Vector3f worldPos, PoseStack viewModelStack) {
+		Matrix4f viewMat = viewModelStack.last().pose();
 		Matrix4f projMat = RenderSystem.getProjectionMatrix();
 
-		Vec3f localPos = worldPos.copy();
-		localPos.subtract(new Vec3f(MinecraftClient.getInstance().gameRenderer.getCamera().getPos()));
+		Vector3f localPos = worldPos.copy();
+		localPos.sub(new Vector3f(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition()));
 
 		Vector4f pos = new Vector4f(localPos);
 		pos.transform(viewMat);
 		pos.transform(projMat);
-		pos.normalizeProjectiveCoordinates();
+		pos.perspectiveDivide();
 
-		return new Vec2f((pos.getX()+1F)/2F, (pos.getY()+1F)/2F);
+		return new Vec2((pos.x()+1F)/2F, (pos.y()+1F)/2F);
 	}
 }
