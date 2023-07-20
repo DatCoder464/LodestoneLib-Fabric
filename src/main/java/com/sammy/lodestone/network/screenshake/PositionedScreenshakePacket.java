@@ -42,8 +42,8 @@ public class PositionedScreenshakePacket extends ScreenshakePacket {
 				buf.readFloat(),
 				buf.readFloat()
 		).setEasing(
-				Easing.valueOf(buf.readComponent().getString()),
-				Easing.valueOf(buf.readComponent().getString())
+				Easing.valueOf(buf.readUtf()),
+				Easing.valueOf(buf.readUtf())
 		));
 	}
 
