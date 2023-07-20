@@ -16,7 +16,7 @@ import com.sammy.lodestone.systems.rendering.particle.screen.emitter.ItemParticl
 import com.sammy.lodestone.systems.rendering.particle.screen.emitter.ParticleEmitter;
 //import dev.emi.emi.screen.RecipeScreen;
 import dev.emi.emi.screen.RecipeScreen;
-import net.fabricmc.loader.impl.FabricLoaderImpl;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -64,7 +64,7 @@ public class ScreenParticleHandler {
 					ScreenParticle.RenderOrder renderOrder = AFTER_EVERYTHING;
 					Screen screen = minecraft.screen;
 					if (screen != null) {
-						if (!FabricLoaderImpl.INSTANCE.isModLoaded("emi") || !(screen instanceof RecipeScreen)) {
+						if (!FabricLoader.getInstance().isModLoaded("emi") || !(screen instanceof RecipeScreen)) {
 							renderOrder = BEFORE_TOOLTIPS;
 						}
 						if (renderingHotbar) {
@@ -86,7 +86,7 @@ public class ScreenParticleHandler {
 	public static void renderParticles() {
 		final Minecraft client = Minecraft.getInstance();
 		Screen screen = client.screen;
-		if (FabricLoaderImpl.INSTANCE.isModLoaded("emi") && screen instanceof RecipeScreen) {
+		if (FabricLoader.getInstance().isModLoaded("emi") && screen instanceof RecipeScreen) {
 			renderParticles(AFTER_EVERYTHING);
 		}
 		if (screen == null || screen instanceof ChatScreen || screen instanceof GameModeSwitcherScreen) {

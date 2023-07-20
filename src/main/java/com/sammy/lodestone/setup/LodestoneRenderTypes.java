@@ -8,7 +8,7 @@ import com.mojang.datafixers.util.Pair;
 import com.sammy.lodestone.handlers.RenderHandler;
 import com.sammy.lodestone.systems.rendering.Phases;
 import com.sammy.lodestone.systems.rendering.ShaderUniformHandler;
-import net.fabricmc.loader.impl.FabricLoaderImpl;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
@@ -92,7 +92,7 @@ public class LodestoneRenderTypes extends RenderStateShard {
 	 */
 	public static RenderType createGenericRenderType(String name, VertexFormat format, VertexFormat.Mode mode, ShaderStateShard shader, TransparencyStateShard transparency, EmptyTextureStateShard texture) {
 		RenderType type = RenderType.create(
-				name, format, mode, FabricLoaderImpl.INSTANCE.isModLoaded("sodium") ? 2097152 : 256, false, false, RenderType.CompositeState.builder()
+				name, format, mode, FabricLoader.getInstance().isModLoaded("sodium") ? 2097152 : 256, false, false, RenderType.CompositeState.builder()
 						.setShaderState(shader)
 						.setWriteMaskState(new WriteMaskStateShard(true, true))
 						.setLightmapState(new LightmapStateShard(false))
@@ -126,7 +126,7 @@ public class LodestoneRenderTypes extends RenderStateShard {
 	 * */
 	public static RenderType getOutlineTranslucent(ResourceLocation texture, boolean cull) {
 		return RenderType.create(MODID + ":outline_translucent",
-			NEW_ENTITY, VertexFormat.Mode.QUADS, FabricLoaderImpl.INSTANCE.isModLoaded("sodium") ? 262144 : 256, false, true, RenderType.CompositeState.builder()
+			NEW_ENTITY, VertexFormat.Mode.QUADS, FabricLoader.getInstance().isModLoaded("sodium") ? 262144 : 256, false, true, RenderType.CompositeState.builder()
 						.setShaderState(cull ? RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_CULL_SHADER : RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
 						.setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
 						.setTransparencyState(TRANSLUCENT_TRANSPARENCY)

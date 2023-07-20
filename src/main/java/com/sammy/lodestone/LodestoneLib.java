@@ -4,7 +4,7 @@ import com.sammy.lodestone.helpers.OrtTestItem;
 import com.sammy.lodestone.setup.LodestoneParticles;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.fabricmc.loader.impl.FabricLoaderImpl;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
@@ -23,7 +23,7 @@ public class LodestoneLib implements ModInitializer {
 	public void onInitialize() {
 		LOGGER.info("jesser where is the cocainer");
 		LodestoneParticles.init();
-		if(FabricLoaderImpl.INSTANCE.isDevelopmentEnvironment()) {
+		if(FabricLoader.getInstance().isDevelopmentEnvironment()) {
 			Registry.register(Registry.ITEM, id("ort"), new OrtTestItem(new FabricItemSettings().rarity(Rarity.EPIC).group(CreativeModeTab.TAB_MISC)));
 		}
 	}

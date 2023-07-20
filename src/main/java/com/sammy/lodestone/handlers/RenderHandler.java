@@ -9,7 +9,7 @@ import com.sammy.lodestone.helpers.RenderHelper;
 import com.sammy.lodestone.setup.LodestoneRenderTypes;
 import com.sammy.lodestone.systems.rendering.ExtendedShader;
 import com.sammy.lodestone.systems.rendering.ShaderUniformHandler;
-import net.fabricmc.loader.impl.FabricLoaderImpl;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
@@ -27,9 +27,9 @@ public class RenderHandler {
 	public static Matrix4f PARTICLE_MATRIX = null;
 
 	public static void init() {
-		EARLY_DELAYED_RENDER = MultiBufferSource.immediateWithBuffers(EARLY_BUFFERS, new BufferBuilder(FabricLoaderImpl.INSTANCE.isModLoaded("sodium") ? 262144 : 256));
-		DELAYED_RENDER = MultiBufferSource.immediateWithBuffers(BUFFERS, new BufferBuilder(FabricLoaderImpl.INSTANCE.isModLoaded("sodium") ? 2097152 : 256));
-		LATE_DELAYED_RENDER = MultiBufferSource.immediateWithBuffers(LATE_BUFFERS, new BufferBuilder(FabricLoaderImpl.INSTANCE.isModLoaded("sodium") ? 262144 : 256));
+		EARLY_DELAYED_RENDER = MultiBufferSource.immediateWithBuffers(EARLY_BUFFERS, new BufferBuilder(FabricLoader.getInstance().isModLoaded("sodium") ? 262144 : 256));
+		DELAYED_RENDER = MultiBufferSource.immediateWithBuffers(BUFFERS, new BufferBuilder(FabricLoader.getInstance().isModLoaded("sodium") ? 2097152 : 256));
+		LATE_DELAYED_RENDER = MultiBufferSource.immediateWithBuffers(LATE_BUFFERS, new BufferBuilder(FabricLoader.getInstance().isModLoaded("sodium") ? 262144 : 256));
 	}
 	public static void renderLast(PoseStack stack) {
 		stack.pushPose();
